@@ -411,3 +411,25 @@ func TestSessionLoginLdap(t *testing.T) {
 
 	<-time.After(time.Second * 30)
 }
+
+func TestFindUserLdap(t *testing.T) {
+	// t.Skip("Skip : Comment this line to do test")
+
+	addr := "192.168.0.200:389"
+	basedn := "DC=eaciit,DC=local"
+	filter := "(&(objectclass=person)(objectclass=organizationalPerson)(cn=*id*))"
+
+	param := toolkit.M{}
+
+	param.Set("username", "Alip Sidik")
+	param.Set("password", "Password.1")
+	param.Set("attributes", []string{"cn", "givenName"})
+
+	arrtkm, err := acl.FindUserLdap(addr, basedn, filter, param)
+	if err != nil {
+		t.Errorf("Find user ldap error: %s \n", err.Error())
+		return
+	}
+
+	fmt.Println("User ldap []tkm : ", arrtkm)
+}
