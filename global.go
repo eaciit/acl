@@ -189,6 +189,66 @@ func ChangePassword(userId string, passwd string) (err error) {
 	return
 }
 
+func ChangePasswordToken(userId, passwd, tokenid string) (err error) {
+
+	gToken, err := GetToken(userId, "ChangePassword")
+	if err != nil {
+		err = errors.New(fmt.Sprintf("Get token found : %v", err.Error()))
+		return
+	}
+
+	if gToken != tokenid {
+		err = errors.New("Token is not match")
+		return
+	}
+
+	err = ChangePassword(userId, passwd)
+
+	return
+}
+
+func ResetPassword(email string) (username, tokenid string, err error) {
+	tUser := new(User)
+	err = FindUserByEmail(tUser, email)
+	if err != nil {
+		if strings.Contains(err.Error(), "Not found") {
+			err = errors.New("Username not found")
+			return
+		}
+		err = errors.New(fmt.Sprintf("Found error : %v", err.Error()))
+		return
+	}
+
+	if tUser.ID == "" {
+		err = errors.New("Username not found")
+		return
+	}
+
+	username = tUser.LoginID
+	// fmt.Printf("DEBUG 228 : %#v \n\n", tUser)
+	if tUser.LoginType != LogTypeBasic && tUser.LoginType != 0 {
+		err = errors.New("Only login type basic permited to change")
+		return
+	}
+
+	tokenid, err = GetToken(tUser.ID, "ChangePassword")
+	if tokenid != "" && err == nil {
+		return
+	}
+
+	err = CreateToken(tUser.ID, "ChangePassword", time.Minute*30)
+	if err != nil {
+		err = errors.New("Reset password failed to get token")
+	}
+
+	tokenid, err = GetToken(tUser.ID, "ChangePassword")
+	if err != nil {
+		err = errors.New("Reset password failed to get token")
+	}
+
+	return
+}
+
 func FindUserLdap(addr, basedn, filter string, param toolkit.M) (arrtkm []toolkit.M, err error) {
 	arrtkm = make([]toolkit.M, 0, 0)
 

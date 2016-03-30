@@ -57,6 +57,7 @@ func TestCreateUser(t *testing.T) {
 		initUser.FullName = fmt.Sprintf("ACL FULLNAME USER.%v", i)
 		initUser.Email = fmt.Sprintf("user.%v.sidik@eaciit.com", i)
 		initUser.Password = "12345"
+		initUser.LoginType = acl.LogTypeBasic
 
 		err := acl.Save(initUser)
 		if err != nil {
@@ -413,7 +414,7 @@ func TestSessionLoginLdap(t *testing.T) {
 }
 
 func TestFindUserLdap(t *testing.T) {
-	// t.Skip("Skip : Comment this line to do test")
+	t.Skip("Skip : Comment this line to do test")
 
 	addr := "192.168.0.200:389"
 	basedn := "DC=eaciit,DC=local"
@@ -432,4 +433,35 @@ func TestFindUserLdap(t *testing.T) {
 	}
 
 	fmt.Println("User ldap []tkm : ", arrtkm)
+}
+
+func TestResetPassword(t *testing.T) {
+	// t.Skip("Skip : Comment this line to do test")
+
+	uname, token, err := acl.ResetPassword("user.0.sidik@eaciit.com")
+	if err != nil {
+		t.Errorf("Test reset found: %s \n", err.Error())
+		return
+	}
+
+	tUser := new(acl.User)
+	err = acl.FindUserByLoginID(tUser, uname)
+	if err != nil {
+		t.Errorf("Test reset found: %s \n", err.Error())
+		return
+	}
+
+	err = acl.ChangePasswordToken(tUser.ID, "eula123", token)
+	if err != nil {
+		t.Errorf("Test reset found: %s \n", err.Error())
+		return
+	}
+
+	sessionid, err := acl.Login(uname, "eula123")
+	if err != nil {
+		t.Errorf("Login error: %s \n", err.Error())
+		t.Skip()
+	}
+
+	fmt.Printf("[%v]Session ID : %v \n", toolkit.Date2String(time.Now(), "HH:mm:ss"), sessionid)
 }
