@@ -5,9 +5,10 @@ import (
 
 	"github.com/eaciit/acl"
 	"github.com/eaciit/dbox"
+	_ "github.com/eaciit/dbox/dbc/jsons"
 	_ "github.com/eaciit/dbox/dbc/mongo"
 	"github.com/eaciit/toolkit"
-	// "os"
+	"os"
 	// "path/filepath"
 	"testing"
 	"time"
@@ -23,9 +24,21 @@ import (
 // 	}
 // }
 
+// func prepareconnection() (conn dbox.IConnection, err error) {
+// 	conn, err = dbox.NewConnection("mongo",
+// 		&dbox.ConnectionInfo{"localhost:27017", "valegrab", "", "", toolkit.M{}.Set("timeout", 3)})
+// 	if err != nil {
+// 		return
+// 	}
+
+// 	err = conn.Connect()
+// 	return
+// }
+
 func prepareconnection() (conn dbox.IConnection, err error) {
-	conn, err = dbox.NewConnection("mongo",
-		&dbox.ConnectionInfo{"localhost:27017", "valegrab", "", "", toolkit.M{}.Set("timeout", 3)})
+	wd, _ := os.Getwd()
+	conn, err = dbox.NewConnection("jsons",
+		&dbox.ConnectionInfo{wd, "", "", "", toolkit.M{}.Set("newfile", true)})
 	if err != nil {
 		return
 	}
@@ -48,7 +61,7 @@ func TestInitialSetDatabase(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
-	t.Skip("Skip : Comment this line to do test")
+	// t.Skip("Skip : Comment this line to do test")
 	for i := 0; i < 3; i++ {
 		initUser := new(acl.User)
 
@@ -65,19 +78,19 @@ func TestCreateUser(t *testing.T) {
 		}
 	}
 
-	for i := 0; i < 3; i++ {
-		iUser := new(acl.User)
-		err := acl.FindUserByLoginID(iUser, fmt.Sprintf("ACL.LOGINID.%v", i))
-		if err != nil {
-			t.Errorf("Error find user by login id: %s \n", err.Error())
-			continue
-		}
-		err = acl.ChangePassword(iUser.ID, "12345")
-		if err != nil {
-			t.Errorf("Error change password : %s \n", err.Error())
-			continue
-		}
-	}
+	// for i := 0; i < 3; i++ {
+	// 	iUser := new(acl.User)
+	// 	err := acl.FindUserByLoginID(iUser, fmt.Sprintf("ACL.LOGINID.%v", i))
+	// 	if err != nil {
+	// 		t.Errorf("Error find user by login id: %s \n", err.Error())
+	// 		continue
+	// 	}
+	// 	err = acl.ChangePassword(iUser.ID, "12345")
+	// 	if err != nil {
+	// 		t.Errorf("Error change password : %s \n", err.Error())
+	// 		continue
+	// 	}
+	// }
 }
 
 func TestCreateUserLdap(t *testing.T) {
@@ -392,7 +405,7 @@ func TestSession(t *testing.T) {
 }
 
 func TestSessionLoginLdap(t *testing.T) {
-	// t.Skip("Skip : Comment this line to do test")
+	t.Skip("Skip : Comment this line to do test")
 
 	sessionid, err := acl.Login("Alip Sidik", "Password.1")
 	if err != nil {

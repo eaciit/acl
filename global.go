@@ -271,7 +271,7 @@ func ChangePasswordToken(userId, passwd, tokenid string) (err error) {
 	return
 }
 
-func ResetPassword(email string) (username, tokenid string, err error) {
+func ResetPassword(email string) (userid, tokenid string, err error) {
 	tUser := new(User)
 	err = FindUserByEmail(tUser, email)
 	if err != nil {
@@ -288,7 +288,7 @@ func ResetPassword(email string) (username, tokenid string, err error) {
 		return
 	}
 
-	username = tUser.LoginID
+	userid = tUser.ID
 	// fmt.Printf("DEBUG 228 : %#v \n\n", tUser)
 	if tUser.LoginType != LogTypeBasic && tUser.LoginType != 0 {
 		err = errors.New("Only login type basic permited to change")
