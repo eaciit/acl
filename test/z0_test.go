@@ -392,7 +392,7 @@ func TestSession(t *testing.T) {
 }
 
 func TestSessionLoginLdap(t *testing.T) {
-	t.Skip("Skip : Comment this line to do test")
+	// t.Skip("Skip : Comment this line to do test")
 
 	sessionid, err := acl.Login("Alip Sidik", "Password.1")
 	if err != nil {
@@ -436,7 +436,7 @@ func TestFindUserLdap(t *testing.T) {
 }
 
 func TestResetPassword(t *testing.T) {
-	// t.Skip("Skip : Comment this line to do test")
+	t.Skip("Skip : Comment this line to do test")
 
 	uname, token, err := acl.ResetPassword("user.0.sidik@eaciit.com")
 	if err != nil {
