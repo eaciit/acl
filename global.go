@@ -261,12 +261,15 @@ func ChangePasswordToken(userId, passwd, tokenid string) (err error) {
 		return
 	}
 
-	if gToken != tokenid {
+	if gToken.ID != tokenid {
 		err = errors.New("Token is not match")
 		return
 	}
 
 	err = ChangePassword(userId, passwd)
+	if err == nil {
+		gToken.Claim()
+	}
 
 	return
 }
@@ -295,7 +298,8 @@ func ResetPassword(email string) (userid, tokenid string, err error) {
 		return
 	}
 
-	tokenid, err = GetToken(tUser.ID, "ChangePassword")
+	tToken, err := GetToken(tUser.ID, "ChangePassword")
+	tokenid = tToken.ID
 	if tokenid != "" && err == nil {
 		return
 	}
@@ -305,7 +309,8 @@ func ResetPassword(email string) (userid, tokenid string, err error) {
 		err = errors.New("Reset password failed to get token")
 	}
 
-	tokenid, err = GetToken(tUser.ID, "ChangePassword")
+	tToken, err = GetToken(tUser.ID, "ChangePassword")
+	tokenid = tToken.ID
 	if err != nil {
 		err = errors.New("Reset password failed to get token")
 	}
@@ -487,8 +492,8 @@ func CreateToken(UserID, TokenPupose string, Validity time.Duration) (err error)
 	return
 }
 
-func GetToken(UserID, TokenPurpose string) (tokenid string, err error) {
-	tToken := new(Token)
+func GetToken(UserID, TokenPurpose string) (tToken *Token, err error) {
+	tToken = new(Token)
 
 	var filters []*dbox.Filter
 	filter := dbox.And(dbox.Eq("userid", UserID), dbox.Eq("purpose", TokenPurpose))
@@ -518,7 +523,6 @@ func GetToken(UserID, TokenPurpose string) (tokenid string, err error) {
 			return
 		}
 
-		tokenid = tToken.ID
 	}
 
 	return

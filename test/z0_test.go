@@ -8,7 +8,7 @@ import (
 	_ "github.com/eaciit/dbox/dbc/jsons"
 	_ "github.com/eaciit/dbox/dbc/mongo"
 	"github.com/eaciit/toolkit"
-	"os"
+	_ "os"
 	// "path/filepath"
 	"testing"
 	"time"
@@ -24,21 +24,9 @@ import (
 // 	}
 // }
 
-// func prepareconnection() (conn dbox.IConnection, err error) {
-// 	conn, err = dbox.NewConnection("mongo",
-// 		&dbox.ConnectionInfo{"localhost:27017", "valegrab", "", "", toolkit.M{}.Set("timeout", 3)})
-// 	if err != nil {
-// 		return
-// 	}
-
-// 	err = conn.Connect()
-// 	return
-// }
-
 func prepareconnection() (conn dbox.IConnection, err error) {
-	wd, _ := os.Getwd()
-	conn, err = dbox.NewConnection("jsons",
-		&dbox.ConnectionInfo{wd, "", "", "", toolkit.M{}.Set("newfile", true)})
+	conn, err = dbox.NewConnection("mongo",
+		&dbox.ConnectionInfo{"localhost:27017", "valegrab", "", "", toolkit.M{}.Set("timeout", 3)})
 	if err != nil {
 		return
 	}
@@ -46,6 +34,18 @@ func prepareconnection() (conn dbox.IConnection, err error) {
 	err = conn.Connect()
 	return
 }
+
+// func prepareconnection() (conn dbox.IConnection, err error) {
+// 	wd, _ := os.Getwd()
+// 	conn, err = dbox.NewConnection("jsons",
+// 		&dbox.ConnectionInfo{wd, "", "", "", toolkit.M{}.Set("newfile", true)})
+// 	if err != nil {
+// 		return
+// 	}
+
+// 	err = conn.Connect()
+// 	return
+// }
 
 func TestInitialSetDatabase(t *testing.T) {
 	conn, err := prepareconnection()
@@ -61,7 +61,7 @@ func TestInitialSetDatabase(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
-	// t.Skip("Skip : Comment this line to do test")
+	t.Skip("Skip : Comment this line to do test")
 	for i := 0; i < 3; i++ {
 		initUser := new(acl.User)
 
@@ -78,19 +78,19 @@ func TestCreateUser(t *testing.T) {
 		}
 	}
 
-	// for i := 0; i < 3; i++ {
-	// 	iUser := new(acl.User)
-	// 	err := acl.FindUserByLoginID(iUser, fmt.Sprintf("ACL.LOGINID.%v", i))
-	// 	if err != nil {
-	// 		t.Errorf("Error find user by login id: %s \n", err.Error())
-	// 		continue
-	// 	}
-	// 	err = acl.ChangePassword(iUser.ID, "12345")
-	// 	if err != nil {
-	// 		t.Errorf("Error change password : %s \n", err.Error())
-	// 		continue
-	// 	}
-	// }
+	for i := 0; i < 3; i++ {
+		iUser := new(acl.User)
+		err := acl.FindUserByLoginID(iUser, fmt.Sprintf("ACL.LOGINID.%v", i))
+		if err != nil {
+			t.Errorf("Error find user by login id: %s \n", err.Error())
+			continue
+		}
+		err = acl.ChangePassword(iUser.ID, "12345")
+		if err != nil {
+			t.Errorf("Error change password : %s \n", err.Error())
+			continue
+		}
+	}
 }
 
 func TestCreateUserLdap(t *testing.T) {
@@ -449,16 +449,17 @@ func TestFindUserLdap(t *testing.T) {
 }
 
 func TestResetPassword(t *testing.T) {
-	t.Skip("Skip : Comment this line to do test")
+	// t.Skip("Skip : Comment this line to do test")
 
 	uname, token, err := acl.ResetPassword("user.0.sidik@eaciit.com")
+	fmt.Printf("%v, %v, %v \n\n", uname, token, err)
 	if err != nil {
 		t.Errorf("Test reset found: %s \n", err.Error())
 		return
 	}
 
 	tUser := new(acl.User)
-	err = acl.FindUserByLoginID(tUser, uname)
+	err = acl.FindByID(tUser, uname)
 	if err != nil {
 		t.Errorf("Test reset found: %s \n", err.Error())
 		return
@@ -470,7 +471,7 @@ func TestResetPassword(t *testing.T) {
 		return
 	}
 
-	sessionid, err := acl.Login(uname, "eula123")
+	sessionid, err := acl.Login(tUser.LoginID, "eula123")
 	if err != nil {
 		t.Errorf("Login error: %s \n", err.Error())
 		t.Skip()
