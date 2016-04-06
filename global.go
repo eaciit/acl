@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/eaciit/dbox"
 	_ "github.com/eaciit/dbox/dbc/mongo"
-	"github.com/eaciit/ldap"
+	// "github.com/eaciit/ldap"
 	"github.com/eaciit/orm/v1"
 	"github.com/eaciit/toolkit"
 	"io"
@@ -318,55 +318,6 @@ func ResetPassword(email string) (userid, tokenid string, err error) {
 	return
 }
 
-func FindUserLdap(addr, basedn, filter string, param toolkit.M) (arrtkm []toolkit.M, err error) {
-	arrtkm = make([]toolkit.M, 0, 0)
-
-	l := ldap.NewConnection(addr)
-	err = l.Connect()
-	if err != nil {
-		return
-	}
-	defer l.Close()
-
-	if param.Has("username") {
-		err = l.Bind(toolkit.ToString(param["username"]), toolkit.ToString(param["password"]))
-		if err != nil {
-			return
-		}
-	}
-
-	attributes := make([]string, 0, 0)
-	if param.Has("attributes") {
-		attributes = param["attributes"].([]string)
-	}
-	// filter = "(*" + filter + "*)"
-	search := ldap.NewSearchRequest(basedn,
-		ldap.ScopeWholeSubtree,
-		ldap.DerefAlways,
-		0,
-		0,
-		false,
-		filter,
-		attributes,
-		nil)
-
-	sr, err := l.Search(search)
-
-	for _, v := range sr.Entries {
-		tkm := toolkit.M{}
-
-		for _, str := range attributes {
-			tkm.Set(str, v.GetAttributeValue(str))
-		}
-
-		if len(tkm) > 0 {
-			arrtkm = append(arrtkm, tkm)
-		}
-	}
-
-	return
-}
-
 func FindUserByLoginID(o orm.IModel, id interface{}) error {
 	filter := dbox.Eq("loginid", id)
 
@@ -581,24 +532,6 @@ func checkloginbasic(spassword, upassword string) (cond bool) {
 	ePassword := fmt.Sprintf("%x", tPass.Sum(nil))
 
 	if ePassword == upassword {
-		cond = true
-	}
-
-	return
-}
-
-func checkloginldap(username string, password string, loginconf toolkit.M) (cond bool) {
-	cond = false
-
-	l := ldap.NewConnection(toolkit.ToString(loginconf["address"]))
-	err := l.Connect()
-	if err != nil {
-		return
-	}
-	defer l.Close()
-
-	err = l.Bind(username, password)
-	if err == nil {
 		cond = true
 	}
 

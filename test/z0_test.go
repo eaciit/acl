@@ -439,7 +439,7 @@ func TestFindUserLdap(t *testing.T) {
 	param.Set("password", "Password.1")
 	param.Set("attributes", []string{"cn", "givenName"})
 
-	arrtkm, err := acl.FindUserLdap(addr, basedn, filter, param)
+	arrtkm, err := acl.FindDataLdap(addr, basedn, filter, param)
 	if err != nil {
 		t.Errorf("Find user ldap error: %s \n", err.Error())
 		return
@@ -448,8 +448,33 @@ func TestFindUserLdap(t *testing.T) {
 	fmt.Println("User ldap []tkm : ", arrtkm)
 }
 
-func TestResetPassword(t *testing.T) {
+func TestFindGroupLdap(t *testing.T) {
 	// t.Skip("Skip : Comment this line to do test")
+
+	addr := "192.168.0.200:389"
+	basedn := "DC=eaciit,DC=local"
+	filter := "(&(objectclass=group)(cn=Dump))"
+
+	param := toolkit.M{}
+
+	param.Set("username", "Alip Sidik")
+	param.Set("password", "Password.1")
+	param.Set("attributes", []string{"cn", "member"})
+
+	arrtkm, err := acl.FindDataLdap(addr, basedn, filter, param)
+	if err != nil {
+		t.Errorf("Find group ldap error: %s \n", err.Error())
+		return
+	}
+
+	fmt.Println("Group ldap []tkm : ", arrtkm)
+	for _, v := range arrtkm {
+		fmt.Printf("* %v\n", v)
+	}
+}
+
+func TestResetPassword(t *testing.T) {
+	t.Skip("Skip : Comment this line to do test")
 
 	uname, token, err := acl.ResetPassword("user.0.sidik@eaciit.com")
 	fmt.Printf("%v, %v, %v \n\n", uname, token, err)

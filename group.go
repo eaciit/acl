@@ -71,3 +71,9 @@ func (g *Group) Revoke(tAccessID string, tAccessEnum ...AccessTypeEnum) {
 
 	return
 }
+
+func (g *Group) GetAccessList() (arrgrant []AccessGrant) {
+	arrgrant = make([]AccessGrant, 0, 0)
+	arrgrant = append(arrgrant, g.Grants...)
+	return
+}

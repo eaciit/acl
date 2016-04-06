@@ -126,3 +126,14 @@ func (u *User) RemoveFromGroup(tGroupID string) error {
 
 	return nil
 }
+
+func (u *User) GetAccessList() (arrgrant []AccessGrant) {
+	arrgrant = make([]AccessGrant, 0, 0)
+	arrgrant = append(arrgrant, u.Grants...)
+
+	// for _, v := range u.Groups {
+	// 	tGroup := new()
+	// }
+
+	return
+}
