@@ -127,6 +127,7 @@ func HasAccess(ID interface{}, IDType IDTypeEnum, AccessID string, AccessFind Ac
 			return
 		}
 		tGrants = tUser.Grants
+		//modify here get all groups grant
 	case IDTypeGroup:
 		tGroup := new(Group)
 		err := FindByID(tGroup, ID)
@@ -163,68 +164,68 @@ func HasAccess(ID interface{}, IDType IDTypeEnum, AccessID string, AccessFind Ac
 }
 
 // List Access By Field
-func ListAccessByField(ID interface{}, IDType IDTypeEnum, accfield, accvalue string) (listaccess []toolkit.M) {
-	// found = false
-	listaccess = make([]toolkit.M, 0, 0)
+// func ListAccessByField(ID interface{}, IDType IDTypeEnum, accfield, accvalue string) (listaccess []toolkit.M) {
+// 	// found = false
+// 	listaccess = make([]toolkit.M, 0, 0)
 
-	tGrants := make([]AccessGrant, 0, 0)
-	switch IDType {
-	case IDTypeUser:
-		tUser := new(User)
-		err := FindUserByLoginID(tUser, ID)
-		if err != nil {
-			return
-		}
-		tGrants = tUser.Grants
-	case IDTypeGroup:
-		tGroup := new(Group)
-		err := FindByID(tGroup, ID)
-		if err != nil {
-			return
-		}
-		tGrants = tGroup.Grants
-	case IDTypeSession:
-		tSession := new(Session)
-		err := FindByID(tSession, ID)
-		if tSession.Expired.Before(time.Now().UTC()) {
-			return
-		}
+// 	tGrants := make([]AccessGrant, 0, 0)
+// 	switch IDType {
+// 	case IDTypeUser:
+// 		tUser := new(User)
+// 		err := FindUserByLoginID(tUser, ID)
+// 		if err != nil {
+// 			return
+// 		}
+// 		tGrants = tUser.Grants
+// 	case IDTypeGroup:
+// 		tGroup := new(Group)
+// 		err := FindByID(tGroup, ID)
+// 		if err != nil {
+// 			return
+// 		}
+// 		tGrants = tGroup.Grants
+// 	case IDTypeSession:
+// 		tSession := new(Session)
+// 		err := FindByID(tSession, ID)
+// 		if tSession.Expired.Before(time.Now().UTC()) {
+// 			return
+// 		}
 
-		tUser := new(User)
-		err = FindByID(tUser, tSession.UserID)
-		if err != nil {
-			return
-		}
+// 		tUser := new(User)
+// 		err = FindByID(tUser, tSession.UserID)
+// 		if err != nil {
+// 			return
+// 		}
 
-		tGrants = tUser.Grants
-	}
+// 		tGrants = tUser.Grants
+// 	}
 
-	if len(tGrants) == 0 {
-		return
-	}
+// 	if len(tGrants) == 0 {
+// 		return
+// 	}
 
-	for _, v := range tGrants {
-		tkm := toolkit.M{}
+// 	for _, v := range tGrants {
+// 		tkm := toolkit.M{}
 
-		tAccess := new(Access)
-		err := FindByID(tAccess, v.AccessID)
-		if err != nil {
-			return
-		}
+// 		tAccess := new(Access)
+// 		err := FindByID(tAccess, v.AccessID)
+// 		if err != nil {
+// 			return
+// 		}
 
-		err = toolkit.Serde(tAccess, tkm, "json")
-		if err != nil {
-			return
-		}
+// 		err = toolkit.Serde(tAccess, tkm, "json")
+// 		if err != nil {
+// 			return
+// 		}
 
-		if tkm.Has(accfield) && toolkit.ToString(tkm[accfield]) == accvalue {
-			tkm.Set("AccessValue", v.AccessValue)
-			listaccess = append(listaccess, tkm)
-		}
-	}
+// 		if tkm.Has(accfield) && toolkit.ToString(tkm[accfield]) == accvalue {
+// 			tkm.Set("AccessValue", v.AccessValue)
+// 			listaccess = append(listaccess, tkm)
+// 		}
+// 	}
 
-	return
-}
+// 	return
+// }
 
 //UserId using userid
 func ChangePassword(userId string, passwd string) (err error) {

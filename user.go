@@ -1,8 +1,8 @@
 package acl
 
 import (
-	// "github.com/eaciit/dbox"
 	"errors"
+	"github.com/eaciit/dbox"
 	"github.com/eaciit/orm/v1"
 	"github.com/eaciit/toolkit"
 )
@@ -100,10 +100,10 @@ func (u *User) AddToGroup(tGroupID string) error {
 		u.Groups = append(u.Groups, mod.ID)
 	}
 
-	for _, tg := range mod.Grants {
-		arrgrantval := Splitinttogrant(tg.AccessValue)
-		u.Grant(tg.AccessID, arrgrantval...)
-	}
+	// for _, tg := range mod.Grants {
+	// 	arrgrantval := Splitinttogrant(tg.AccessValue)
+	// 	u.Grant(tg.AccessID, arrgrantval...)
+	// }
 
 	return nil
 }
@@ -119,10 +119,10 @@ func (u *User) RemoveFromGroup(tGroupID string) error {
 		u.Groups = append(u.Groups[:i], u.Groups[i+1:]...)
 	}
 
-	for _, tg := range mod.Grants {
-		arrgrantval := Splitinttogrant(tg.AccessValue)
-		u.Revoke(tg.AccessID, arrgrantval...)
-	}
+	// for _, tg := range mod.Grants {
+	// 	arrgrantval := Splitinttogrant(tg.AccessValue)
+	// 	u.Revoke(tg.AccessID, arrgrantval...)
+	// }
 
 	return nil
 }
@@ -134,6 +134,20 @@ func (u *User) GetAccessList() (arrgrant []AccessGrant) {
 	// for _, v := range u.Groups {
 	// 	tGroup := new()
 	// }
+
+	return
+}
+
+func GetUserByGroup(groupid string) (arruser []*User, err error) {
+	arruser = make([]*User, 0, 0)
+
+	filter := dbox.Eq("groups", groupid)
+	c, err := Find(new(User), filter, nil)
+	if err != nil {
+		return
+	}
+
+	err = c.Fetch(&arruser, 0, false)
 
 	return
 }

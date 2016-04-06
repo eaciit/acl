@@ -2,15 +2,18 @@ package acl
 
 import (
 	"github.com/eaciit/orm/v1"
+	"github.com/eaciit/toolkit"
 )
 
 type Group struct {
 	orm.ModelBase
-	ID     string        `json:"_id",bson:"_id"`
-	Title  string        // `json:"Title",bson:"Title"`
-	Enable bool          // `json:"Enable",bson:"Enable"`
-	Grants []AccessGrant // `json:"Grants",bson:"Grants"`
-	Owner  string        // `json:"Owner",bson:"Owner"`
+	ID        string        `json:"_id",bson:"_id"`
+	Title     string        // `json:"Title",bson:"Title"`
+	Enable    bool          // `json:"Enable",bson:"Enable"`
+	Grants    []AccessGrant // `json:"Grants",bson:"Grants"`
+	Owner     string        // `json:"Owner",bson:"Owner"`
+	GroupType LoginTypeEnum
+	GroupConf toolkit.M
 }
 
 func (g *Group) TableName() string {

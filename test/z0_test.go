@@ -449,7 +449,7 @@ func TestFindUserLdap(t *testing.T) {
 }
 
 func TestFindGroupLdap(t *testing.T) {
-	// t.Skip("Skip : Comment this line to do test")
+	t.Skip("Skip : Comment this line to do test")
 
 	addr := "192.168.0.200:389"
 	basedn := "DC=eaciit,DC=local"
@@ -503,4 +503,8 @@ func TestResetPassword(t *testing.T) {
 	}
 
 	fmt.Printf("[%v]Session ID : %v \n", toolkit.Date2String(time.Now(), "HH:mm:ss"), sessionid)
+}
+
+func TestAddUserLdapByGroup(t *testing.T) {
+	t.Skip("Skip : Comment this line to do test")
 }
