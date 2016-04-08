@@ -26,7 +26,7 @@ import (
 
 func prepareconnection() (conn dbox.IConnection, err error) {
 	conn, err = dbox.NewConnection("mongo",
-		&dbox.ConnectionInfo{"localhost:27017", "valegrab", "", "", toolkit.M{}.Set("timeout", 3)})
+		&dbox.ConnectionInfo{"localhost:27017", "acl", "", "", toolkit.M{}.Set("timeout", 3)})
 	if err != nil {
 		return
 	}
@@ -431,8 +431,10 @@ func TestFindUserLdap(t *testing.T) {
 
 	addr := "192.168.0.200:389"
 	basedn := "DC=eaciit,DC=local"
-	filter := "(&(objectclass=person)(objectclass=organizationalPerson)(cn=*id*))"
-
+	// filter := "(&(objectclass=person)(objectclass=organizationalPerson)(cn=*id*))"
+	// filter := "(distinguishedName=CN=Alip Sidik,CN=Users,DC=eaciit,DC=local)"
+	filter := "(memberOf=CN=Dump,CN=Users,DC=eaciit,DC=local)"
+	// CN=Alip Sidik,CN=Users,DC=eaciit,DC=local
 	param := toolkit.M{}
 
 	param.Set("username", "Alip Sidik")
@@ -453,7 +455,32 @@ func TestFindGroupLdap(t *testing.T) {
 
 	addr := "192.168.0.200:389"
 	basedn := "DC=eaciit,DC=local"
-	filter := "(&(objectclass=group)(cn=Dump))"
+	filter := "(&(objectclass=group)(cn=*Du*))"
+
+	param := toolkit.M{}
+
+	param.Set("username", "Alip Sidik")
+	param.Set("password", "Password.1")
+	param.Set("attributes", []string{"cn", "name", "usncreated"})
+
+	arrtkm, err := acl.FindDataLdap(addr, basedn, filter, param)
+	if err != nil {
+		t.Errorf("Find group ldap error: %s \n", err.Error())
+		return
+	}
+
+	fmt.Println("Group ldap []tkm : ", arrtkm)
+	// for _, v := range arrtkm {
+	// 	fmt.Printf("* %v\n", v)
+	// }
+}
+
+func TestFindUserByGroupLdap(t *testing.T) {
+	t.Skip("Skip : Comment this line to do test")
+
+	addr := "192.168.0.200:389"
+	basedn := "DC=eaciit,DC=local"
+	filter := "(&(&(objectclass=group)(cn=*Du*))(cn=Dump))"
 
 	param := toolkit.M{}
 
@@ -507,4 +534,86 @@ func TestResetPassword(t *testing.T) {
 
 func TestAddUserLdapByGroup(t *testing.T) {
 	t.Skip("Skip : Comment this line to do test")
+
+	addr := "192.168.0.200:389"
+	basedn := "DC=eaciit,DC=local"
+	filter := "(&(objectclass=group)(cn=*Du*))"
+
+	param := toolkit.M{}
+
+	param.Set("username", "Alip Sidik")
+	param.Set("password", "Password.1")
+	param.Set("attributes", []string{"cn", "name", "usncreated"})
+
+	arrtkm, err := acl.FindDataLdap(addr, basedn, filter, param)
+	if err != nil {
+		t.Errorf("Find group ldap error: %s \n", err.Error())
+		return
+	}
+
+	fmt.Println("Group ldap []tkm : ", arrtkm)
+
+	config, _ := toolkit.ToM(param)
+
+	if len(arrtkm) == 0 {
+		return
+	}
+
+	//complete the config
+	config.Set("address", addr).
+		Set("basedn", basedn).
+		Set("filter", "(memberOf=CN=Dump,CN=Users,DC=eaciit,DC=local)").
+		// Set("member", "member").
+		// Set("attributes", append(config["attributes"].([]string), "member")).
+		Set("attributes", []string{"cn", "givenName", "userPrincipalName"}).
+		Set("mapattributes", toolkit.M{}.Set("LoginID", "cn").Set("FullName", "givenName").Set("Email", "userPrincipalName"))
+
+	err = acl.AddUserLdapByGroup(arrtkm[0]["cn"].(string), config)
+	if err != nil {
+		t.Errorf("add user error: %s \n", err.Error())
+		t.Skip()
+	}
+}
+
+func TestRefreshUserLdapByGroup(t *testing.T) {
+	// t.Skip("Skip : Comment this line to do test")
+
+	addr := "192.168.0.200:389"
+	basedn := "DC=eaciit,DC=local"
+	filter := "(&(objectclass=group)(cn=*Du*))"
+
+	param := toolkit.M{}
+
+	param.Set("username", "Alip Sidik")
+	param.Set("password", "Password.1")
+	param.Set("attributes", []string{"cn", "name", "usncreated"})
+
+	arrtkm, err := acl.FindDataLdap(addr, basedn, filter, param)
+	if err != nil {
+		t.Errorf("Find group ldap error: %s \n", err.Error())
+		return
+	}
+
+	fmt.Println("Group ldap []tkm : ", arrtkm)
+
+	config, _ := toolkit.ToM(param)
+
+	if len(arrtkm) == 0 {
+		return
+	}
+
+	//complete the config
+	config.Set("address", addr).
+		Set("basedn", basedn).
+		Set("filter", "(memberOf=CN=Dump,CN=Users,DC=eaciit,DC=local)").
+		// Set("member", "member").
+		// Set("attributes", append(config["attributes"].([]string), "member")).
+		Set("attributes", []string{"cn", "givenName", "userPrincipalName"}).
+		Set("mapattributes", toolkit.M{}.Set("LoginID", "cn").Set("FullName", "givenName").Set("Email", "userPrincipalName"))
+
+	err = acl.RefreshUserLdapByGroup(arrtkm[0]["cn"].(string), config)
+	if err != nil {
+		t.Errorf("refresh user error: %s \n", err.Error())
+		t.Skip()
+	}
 }

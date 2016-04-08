@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/eaciit/ldap"
 	"github.com/eaciit/toolkit"
+	"strings"
 )
 
 func checkloginldap(username string, password string, loginconf toolkit.M) (cond bool) {
@@ -88,6 +89,13 @@ func GetLdapMemberOfGroup(groupid string, conf toolkit.M) (members []*User, err 
 		return
 	}
 
+	// arrtemp := make([]toolkit.M, 0, 0)
+	// // err = toolkit.Serde(arrtkm[0][toolkit.ToString(conf["member"])], &arrtemp, "json")
+	// fmt.Printf("%#v \n", arrtkm[0][toolkit.ToString(conf["member"])])
+	// if err != nil {
+	// 	return
+	// }
+
 	maptkm, err := toolkit.ToM(conf["mapattributes"])
 	if err != nil {
 		return
@@ -101,7 +109,9 @@ func GetLdapMemberOfGroup(groupid string, conf toolkit.M) (members []*User, err 
 		member.Email = toolkit.ToString(val.Get(toolkit.ToString(maptkm.Get("Email", "")), ""))
 		member.Enable = true
 		member.LoginType = LogTypeLdap
-		member.LoginConf = toolkit.M{}.Set("address", toolkit.ToString(conf["address"])).Set("basedn", toolkit.ToString(conf["basedn"]))
+		member.LoginConf = toolkit.M{}.Set("address", toolkit.ToString(conf["address"])).
+			Set("basedn", toolkit.ToString(conf["basedn"])).
+			Set("filter", toolkit.ToString(conf["filter"]))
 		member.AddToGroup(groupid)
 
 		if member.LoginID != "" {
@@ -114,8 +124,7 @@ func GetLdapMemberOfGroup(groupid string, conf toolkit.M) (members []*User, err 
 
 //Check existing user, if any add group. and set enable
 func AddUserLdapByGroup(groupid string, conf toolkit.M) (err error) {
-	// arrtkm = make([]toolkit.M, 0, 0)
-	//addr, basedn, filter string, param toolkit.M
+
 	if !conf.Has("address") || !conf.Has("basedn") || !conf.Has("filter") || !conf.Has("attributes") || !conf.Has("mapattributes") {
 		err = errors.New("The config is not completed")
 		return
@@ -132,26 +141,14 @@ func AddUserLdapByGroup(groupid string, conf toolkit.M) (err error) {
 		return
 	}
 
-	// atUsers, err := GetUserByGroup(groupid)
-	// if err != nil {
-	// 	err = errors.New(fmt.Sprintf("Add By Group found error when get user by group : %v", err.Error()))
-	// 	return
-	// }
-
 	for _, val := range members {
 
 		tUser := new(User)
 		err = FindUserByLoginID(tUser, val.LoginID)
-		if err != nil {
+
+		if err != nil && !(strings.Contains(err.Error(), ".Cursor.Fetch] Not found")) {
 			return
 		}
-
-		// for _, uval := range atUsers {
-		// 	if uval.LoginID == val.LoginID {
-		// 		uval.AddToGroup(groupid)
-		// 		val = uval
-		// 	}
-		// }
 
 		if tUser.LoginID == val.LoginID {
 			tUser.AddToGroup(groupid)
@@ -229,7 +226,7 @@ func RefreshUserLdapByGroup(groupid string, conf toolkit.M) (err error) {
 	for _, val := range members {
 		tUser := new(User)
 		err = FindUserByLoginID(tUser, val.LoginID)
-		if err != nil {
+		if err != nil && !(strings.Contains(err.Error(), ".Cursor.Fetch] Not found")) {
 			return
 		}
 

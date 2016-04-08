@@ -126,6 +126,22 @@ func HasAccess(ID interface{}, IDType IDTypeEnum, AccessID string, AccessFind Ac
 		if err != nil {
 			return
 		}
+
+		for _, val := range tUser.Groups {
+			tGroup := new(Group)
+			err = FindByID(tGroup, val)
+			if err != nil {
+				err = errors.New(fmt.Sprintf("Has Access found error : %v", err.Error()))
+				return
+			}
+
+			for _, dval := range tGroup.Grants {
+				inenum := Splitinttogrant(dval.AccessValue)
+				tUser.Grant(dval.AccessID, inenum...)
+			}
+
+		}
+
 		tGrants = tUser.Grants
 		//modify here get all groups grant
 	case IDTypeGroup:

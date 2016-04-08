@@ -5,15 +5,23 @@ import (
 	"github.com/eaciit/toolkit"
 )
 
+type GroupTypeEnum int
+
+const (
+	GroupTypeBasic LoginTypeEnum = iota
+	GroupTypeLdap
+)
+
 type Group struct {
 	orm.ModelBase
-	ID        string        `json:"_id",bson:"_id"`
-	Title     string        // `json:"Title",bson:"Title"`
-	Enable    bool          // `json:"Enable",bson:"Enable"`
-	Grants    []AccessGrant // `json:"Grants",bson:"Grants"`
-	Owner     string        // `json:"Owner",bson:"Owner"`
-	GroupType LoginTypeEnum
-	GroupConf toolkit.M
+	ID         string        `json:"_id",bson:"_id"`
+	Title      string        // `json:"Title",bson:"Title"`
+	Enable     bool          // `json:"Enable",bson:"Enable"`
+	Grants     []AccessGrant // `json:"Grants",bson:"Grants"`
+	Owner      string        // `json:"Owner",bson:"Owner"`
+	GroupType  GroupTypeEnum
+	GroupConf  toolkit.M
+	MemberConf toolkit.M
 }
 
 func (g *Group) TableName() string {
