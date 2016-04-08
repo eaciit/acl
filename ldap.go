@@ -89,13 +89,6 @@ func GetLdapMemberOfGroup(groupid string, conf toolkit.M) (members []*User, err 
 		return
 	}
 
-	// arrtemp := make([]toolkit.M, 0, 0)
-	// // err = toolkit.Serde(arrtkm[0][toolkit.ToString(conf["member"])], &arrtemp, "json")
-	// fmt.Printf("%#v \n", arrtkm[0][toolkit.ToString(conf["member"])])
-	// if err != nil {
-	// 	return
-	// }
-
 	maptkm, err := toolkit.ToM(conf["mapattributes"])
 	if err != nil {
 		return
@@ -210,10 +203,10 @@ func RefreshUserLdapByGroup(groupid string, conf toolkit.M) (err error) {
 				members = members[:in]
 			}
 		} else {
-			val.RemoveFromGroup(groupid)
-			if len(val.Groups) == 0 {
+			if len(val.Groups) == 1 {
 				err = Delete(val)
 			} else {
+				val.RemoveFromGroup(groupid)
 				err = Save(val)
 			}
 

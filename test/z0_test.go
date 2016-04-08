@@ -533,7 +533,7 @@ func TestResetPassword(t *testing.T) {
 }
 
 func TestAddUserLdapByGroup(t *testing.T) {
-	t.Skip("Skip : Comment this line to do test")
+	// t.Skip("Skip : Comment this line to do test")
 
 	addr := "192.168.0.200:389"
 	basedn := "DC=eaciit,DC=local"
@@ -576,7 +576,7 @@ func TestAddUserLdapByGroup(t *testing.T) {
 }
 
 func TestRefreshUserLdapByGroup(t *testing.T) {
-	// t.Skip("Skip : Comment this line to do test")
+	t.Skip("Skip : Comment this line to do test")
 
 	addr := "192.168.0.200:389"
 	basedn := "DC=eaciit,DC=local"
