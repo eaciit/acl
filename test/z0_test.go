@@ -533,7 +533,7 @@ func TestResetPassword(t *testing.T) {
 }
 
 func TestAddUserLdapByGroup(t *testing.T) {
-	// t.Skip("Skip : Comment this line to do test")
+	t.Skip("Skip : Comment this line to do test")
 
 	addr := "192.168.0.200:389"
 	basedn := "DC=eaciit,DC=local"
@@ -576,7 +576,7 @@ func TestAddUserLdapByGroup(t *testing.T) {
 }
 
 func TestRefreshUserLdapByGroup(t *testing.T) {
-	t.Skip("Skip : Comment this line to do test")
+	// t.Skip("Skip : Comment this line to do test")
 
 	addr := "192.168.0.200:389"
 	basedn := "DC=eaciit,DC=local"
@@ -608,7 +608,7 @@ func TestRefreshUserLdapByGroup(t *testing.T) {
 		Set("filter", "(memberOf=CN=Dump,CN=Users,DC=eaciit,DC=local)").
 		// Set("member", "member").
 		// Set("attributes", append(config["attributes"].([]string), "member")).
-		Set("attributes", []string{"cn", "givenName", "userPrincipalName"}).
+		Set("attributes", []interface{}{"cn", "givenName", "userPrincipalName"}).
 		Set("mapattributes", toolkit.M{}.Set("LoginID", "cn").Set("FullName", "givenName").Set("Email", "userPrincipalName"))
 
 	err = acl.RefreshUserLdapByGroup(arrtkm[0]["cn"].(string), config)

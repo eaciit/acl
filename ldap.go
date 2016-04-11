@@ -166,6 +166,14 @@ func RefreshUserLdapByGroup(groupid string, conf toolkit.M) (err error) {
 		return
 	}
 
+	if toolkit.TypeName(conf["attributes"]) == "[]interface {}" {
+		arrstr := make([]string, 0, 0)
+		for _, v := range conf["attributes"].([]interface{}) {
+			arrstr = append(arrstr, toolkit.ToString(v))
+		}
+		conf.Set("attributes", arrstr)
+	}
+
 	members, err := GetLdapMemberOfGroup(groupid, conf)
 
 	if err != nil {
