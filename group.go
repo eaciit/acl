@@ -8,7 +8,7 @@ import (
 type GroupTypeEnum int
 
 const (
-	GroupTypeBasic LoginTypeEnum = iota
+	GroupTypeBasic GroupTypeEnum = iota
 	GroupTypeLdap
 )
 
