@@ -554,3 +554,30 @@ func checkloginbasic(spassword, upassword string) (cond bool) {
 
 	return
 }
+func CreateUserIfNotExist(username, password string) (err error) {
+	user := new(User)
+	filter := dbox.Contains("loginid", username)
+	c, err := Find(user, filter, nil)
+
+	if err != nil {
+		return
+	}
+	if c.Count() == 0 {
+		user.ID = toolkit.RandomString(32)
+		user.LoginID = username
+		user.FullName = username
+		user.Password = password
+		user.Enable = true
+
+		err = Save(user)
+		if err != nil {
+			return
+		}
+		err = ChangePassword(user.ID, password)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
