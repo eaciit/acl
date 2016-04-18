@@ -540,6 +540,23 @@ func FindActiveSessionByUser(o orm.IModel, userid string) (err error) {
 	return
 }
 
+func IsSessionIDActive(sessionid string) (stat bool) {
+	stat = false
+
+	tSession := new(Session)
+	err = FindByID(tSession, sessionid)
+	if err != nil {
+		return
+	}
+
+	if tSession.Expired.After(time.Now().UTC()) {
+		stat = true
+		return
+	}
+
+	return
+}
+
 func checkloginbasic(spassword, upassword string) (cond bool) {
 	cond = false
 
