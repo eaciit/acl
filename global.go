@@ -158,6 +158,12 @@ func HasAccess(ID interface{}, IDType IDTypeEnum, AccessID string, AccessFind Ac
 			return
 		}
 
+		tSession.Expired = time.Now().UTC().Add(_expiredduration)
+		err = Save(tSession)
+		if err != nil {
+			err = errors.New(fmt.Sprintf("Update session error found : %v", err.Error()))
+		}
+
 		tUser := new(User)
 		err = FindByID(tUser, tSession.UserID)
 		if err != nil {
@@ -535,8 +541,16 @@ func FindActiveSessionByUser(o orm.IModel, userid string) (err error) {
 
 	err = c.Fetch(o, 1, false)
 	if err != nil && strings.Contains(err.Error(), "Not found") {
-		err = nil
+		// err = nil
+		return
 	}
+
+	o.(*Session).Expired = time.Now().UTC().Add(_expiredduration)
+	err = Save(o)
+	if err != nil {
+		err = errors.New(fmt.Sprintf("Update session error found : %v", err.Error()))
+	}
+
 	return
 }
 
@@ -544,14 +558,21 @@ func IsSessionIDActive(sessionid string) (stat bool) {
 	stat = false
 
 	tSession := new(Session)
-	err = FindByID(tSession, sessionid)
+	err := FindByID(tSession, sessionid)
 	if err != nil {
 		return
 	}
 
-	if tSession.Expired.After(time.Now().UTC()) {
-		stat = true
+	if tSession.Expired.Before(time.Now().UTC()) {
 		return
+	}
+
+	stat = true
+
+	tSession.Expired = time.Now().UTC().Add(_expiredduration)
+	err = Save(tSession)
+	if err != nil {
+		err = errors.New(fmt.Sprintf("Update session error found : %v", err.Error()))
 	}
 
 	return
