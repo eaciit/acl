@@ -541,7 +541,7 @@ func FindActiveSessionByUser(o orm.IModel, userid string) (err error) {
 
 	err = c.Fetch(o, 1, false)
 	if err != nil && strings.Contains(err.Error(), "Not found") {
-		// err = nil
+		err = nil
 		return
 	}
 
