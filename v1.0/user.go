@@ -17,25 +17,32 @@ const (
 )
 
 type User struct {
-	orm.ModelBase
-	ID        string        `json:"_id",bson:"_id"`
-	LoginID   string        // `json:"LoginID",bson:"LoginID"`
-	FullName  string        // `json:"FullName",bson:"FullName"`
-	Email     string        // `json:"Email",bson:"Email"`
-	Password  string        // `json:"Password",bson:"Password"`
-	Enable    bool          // `json:"Enable",bson:"Enable"`
-	Groups    []string      // `json:"Groups",bson:"Groups"`
-	Grants    []AccessGrant // `json:"Grants",bson:"Grants"`
-	LoginType LoginTypeEnum
-	LoginConf toolkit.M
+	orm.ModelBase `bson:"-",json:"-"`
+	ID            string        `json:"_id",bson:"_id"`
+	LoginID       string        // `json:"LoginID",bson:"LoginID"`
+	FullName      string        // `json:"FullName",bson:"FullName"`
+	Email         string        // `json:"Email",bson:"Email"`
+	Password      string        // `json:"Password",bson:"Password"`
+	Enable        bool          // `json:"Enable",bson:"Enable"`
+	Groups        []string      // `json:"Groups",bson:"Groups"`
+	Grants        []AccessGrant // `json:"Grants",bson:"Grants"`
+	LoginType     LoginTypeEnum
+	LoginConf     toolkit.M
 }
 
 func (u *User) TableName() string {
-	return "Acl_User"
+	return "acl_users"
 }
 
 func (u *User) RecordID() interface{} {
 	return u.ID
+}
+
+func (u *User) PreSave() error {
+	if u.ID == "" {
+		u.ID = toolkit.RandomString(32)
+	}
+	return nil
 }
 
 func (u *User) Grant(tAccessID string, tAccessEnum ...AccessTypeEnum) {
