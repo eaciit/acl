@@ -362,7 +362,7 @@ func ResetPassword(email string) (userid, tokenid string, err error) {
 
 	err = CreateToken(tUser.ID, "ChangePassword", time.Minute*30)
 	if err != nil {
-		err = errors.New("Reset password failed to get token")
+		err = errors.New("Reset password failed to create token")
 	}
 
 	tToken, err = GetToken(tUser.ID, "ChangePassword")
@@ -508,28 +508,31 @@ func GetToken(UserID, TokenPurpose string) (tToken *Token, err error) {
 		filters = append(filters, filter)
 	}
 
-	c, err := ctx().Find(tToken, toolkit.M{}.Set("where", filters))
+	c, err := ctx().Find(tToken, toolkit.M{}.Set("where", filters).Set("order", []string{"-expired"}))
 	if err != nil {
 		err = errors.New("Acl.GetToken: " + err.Error())
 		return
 	}
 
 	defer c.Close()
-	err = c.Fetch(tToken, 1, false)
 
-	if err == nil {
-		if time.Now().UTC().After(tToken.Expired) {
-			err = errors.New("Token has been expired")
-			tToken = new(Token)
-			return
+	for {
+		errx := c.Fetch(tToken, 1, false)
+		// toolkit.Println("===++===", tToken)
+		if errx == nil {
+			if time.Now().UTC().After(tToken.Expired) {
+				err = errors.New("Token has been expired")
+				tToken = new(Token)
+				break
+			} else if !tToken.Claimed.IsZero() {
+				err = errors.New("Token has been claimed")
+				tToken = new(Token)
+			} else {
+				break
+			}
+		} else {
+			break
 		}
-
-		if !tToken.Claimed.IsZero() {
-			err = errors.New("Token has been claimed")
-			tToken = new(Token)
-			return
-		}
-
 	}
 
 	return
