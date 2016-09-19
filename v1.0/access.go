@@ -5,10 +5,20 @@ import (
 	"github.com/eaciit/toolkit"
 )
 
+type AccessCategoryEnum int
+
+const (
+	AccessData AccessCategoryEnum = 1
+	AccessMenu                    = 2
+	AccessAjax                    = 3
+	//Just sample,
+)
+
 type Access struct {
 	orm.ModelBase  `bson:"-",json:"-"`
 	ID             string `json:"_id",bson:"_id"`
 	Title          string // `json:"Title",bson:"Title"`
+	Category       AccessCategoryEnum
 	Icon           string
 	ParentId       string
 	Url            string

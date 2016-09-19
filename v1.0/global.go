@@ -518,7 +518,6 @@ func GetToken(UserID, TokenPurpose string) (tToken *Token, err error) {
 
 	for {
 		errx := c.Fetch(tToken, 1, false)
-		// toolkit.Println("===++===", tToken)
 		if errx == nil {
 			if time.Now().UTC().After(tToken.Expired) {
 				err = errors.New("Token has been expired")
@@ -671,7 +670,7 @@ func GetListMenuByLoginId(loginId interface{}) (artkm []toolkit.M, err error) {
 		listaccid = append(listaccid, key)
 	}
 
-	filter := dbox.And(dbox.In("_id", listaccid...), dbox.Eq("enable", true))
+	filter := dbox.And(dbox.In("_id", listaccid...), dbox.Eq("enable", true), dbox.Eq("category", AccessMenu))
 	c, err := Find(new(Access), filter, nil)
 	if err != nil {
 		err = errors.New(toolkit.Sprintf("Get list menu found : %s", err.Error()))
