@@ -397,6 +397,25 @@ func FindUserByLoginID(o orm.IModel, id interface{}) error {
 	return e
 }
 
+func IsUserExist(id interface{}) bool {
+	filter := dbox.Eq("loginid", id)
+
+	o := new(User)
+	c, e := Find(o, filter, nil)
+	if e != nil {
+		return true
+	}
+
+	defer c.Close()
+	_ = c.Fetch(o, 1, false)
+
+	if o.ID != "" {
+		return true
+	}
+
+	return false
+}
+
 func FindUserByEmail(o orm.IModel, email string) error {
 	filter := dbox.Eq("email", email)
 	c, e := Find(o, filter, nil)
