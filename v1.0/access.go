@@ -11,6 +11,8 @@ const (
 	AccessData AccessCategoryEnum = 1
 	AccessMenu                    = 2
 	AccessAjax                    = 3
+	AccessList                    = 4
+	AccessTab                     = 5
 	//Just sample,
 )
 

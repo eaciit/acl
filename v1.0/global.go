@@ -106,10 +106,19 @@ func FindByID(o orm.IModel, id interface{}) error {
 	return nil
 }
 
+// func FindByID(o orm.IModel, id interface{}) error {
+// 	filter := dbox.Eq("_id", id)
+// 	e := ctx().Get(o, toolkit.M{}.Set(orm.ConfigWhere, filter))
+// 	if e != nil {
+// 		return errors.New("Acl.GetById : " + e.Error())
+// 	}
+// 	return nil
+// }
+
 func Delete(o orm.IModel) error {
 	e := ctx().Delete(o)
 	if e != nil {
-		return errors.New("Acl.Delete: " + e.Error())
+		return errors.New("Acl.Delete : " + e.Error())
 	}
 	return e
 }
@@ -435,6 +444,11 @@ func Login(username, password string) (sessionid string, err error) {
 		return
 	}
 
+	if !tUser.Enable {
+		err = errors.New("Username is not active")
+		return
+	}
+
 	tSession := new(Session)
 	err = FindActiveSessionByUser(tSession, tUser.ID)
 	if err != nil {
@@ -638,17 +652,40 @@ func GetListMenuBySessionId(sessionId interface{}) (artkm []toolkit.M, err error
 		return
 	}
 
-	artkm, err = GetListMenuByLoginId(isession.LoginID)
+	artkm, err = GetListAccessByLoginId(isession.LoginID, AccessMenu, nil)
 	return
 }
 
 func GetListMenuByLoginId(loginId interface{}) (artkm []toolkit.M, err error) {
+	artkm, err = GetListAccessByLoginId(loginId, AccessMenu, nil)
+	return
+}
+
+func GetListTabBySessionId(sessionId interface{}, igroup string) (artkm []toolkit.M, err error) {
+	artkm = make([]toolkit.M, 0)
+
+	isession := new(Session)
+	err = FindByID(isession, sessionId)
+	if err != nil {
+		err = errors.New(toolkit.Sprintf("Get list tab found : %s", err.Error()))
+		return
+	}
+
+	artkm, err = GetListAccessByLoginId(isession.LoginID, AccessTab, toolkit.M{}.Set("group1", igroup))
+	return
+}
+
+func GetListAccessByLoginId(loginId interface{}, cat AccessCategoryEnum, config toolkit.M) (artkm []toolkit.M, err error) {
+	if config == nil {
+		config = toolkit.M{}
+	}
+
 	artkm = make([]toolkit.M, 0)
 
 	iuser := new(User)
 	err = FindUserByLoginID(iuser, loginId)
 	if err != nil {
-		err = errors.New(toolkit.Sprintf("Get list menu found : %s", err.Error()))
+		err = errors.New(toolkit.Sprintf("Get list found : %s", err.Error()))
 		return
 	}
 
@@ -670,7 +707,19 @@ func GetListMenuByLoginId(loginId interface{}) (artkm []toolkit.M, err error) {
 		listaccid = append(listaccid, key)
 	}
 
-	filter := dbox.And(dbox.In("_id", listaccid...), dbox.Eq("enable", true), dbox.Eq("category", AccessMenu))
+	filter := dbox.And(dbox.In("_id", listaccid...), dbox.Eq("enable", true), dbox.Eq("category", cat))
+	cfilter := make([]*dbox.Filter, 0, 0)
+	arrconf := []string{"parentid", "group1", "group2", "group3"}
+	for _, str := range arrconf {
+		if config.Has(str) {
+			cfilter = append(cfilter, dbox.Eq(str, config.GetString(str)))
+		}
+	}
+
+	if len(cfilter) > 0 {
+		filter = dbox.And(filter, dbox.And(cfilter...))
+	}
+
 	c, err := Find(new(Access), filter, nil)
 	if err != nil {
 		err = errors.New(toolkit.Sprintf("Get list menu found : %s", err.Error()))
