@@ -39,6 +39,10 @@ func (u *User) RecordID() interface{} {
 }
 
 func (u *User) PreSave() error {
+	if u.ID == "" && IsUserExist(u.LoginID) {
+		return errors.New("acl user is exist")
+	}
+
 	if u.ID == "" {
 		u.ID = toolkit.RandomString(32)
 	}
