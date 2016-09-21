@@ -340,8 +340,23 @@ func ChangePasswordToken(userId, passwd, tokenid string) (err error) {
 }
 
 func ResetPassword(email string) (userid, tokenid string, err error) {
+	userid, tokenid, err = ResetPasswordByParam(email, "email")
+	return
+}
+
+func ResetPasswordByLoginID(loginid string) (userid, tokenid string, err error) {
+	userid, tokenid, err = ResetPasswordByParam(loginid, "loginid")
+	return
+}
+
+func ResetPasswordByParam(param, itype string) (userid, tokenid string, err error) {
 	tUser := new(User)
-	err = FindUserByEmail(tUser, email)
+	if itype == "loginid" {
+		err = FindUserByLoginID(tUser, param)
+	} else {
+		err = FindUserByEmail(tUser, param)
+	}
+
 	if err != nil {
 		if strings.Contains(err.Error(), "Not found") {
 			err = errors.New("Username not found")
