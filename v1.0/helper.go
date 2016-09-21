@@ -1,5 +1,9 @@
 package acl
 
+import (
+	"github.com/eaciit/toolkit"
+)
+
 var listvalue = []int{1, 2, 4, 8, 16, 32, 64, 128}
 var listgrantvalue = []AccessTypeEnum{1, 2, 4, 8, 16, 32, 64, 128}
 
@@ -64,6 +68,47 @@ func getlastpassword(UserId string) (passwd string) {
 	}
 
 	passwd = tUser.Password
+
+	return
+}
+
+func sortarrayaccess(sarrtkm []toolkit.M) (arrtkm []toolkit.M) {
+	arrtkm = make([]toolkit.M, 0, 0)
+	var icurr int
+
+	for i, val := range sarrtkm {
+		icurr = 0
+		index := val.GetInt("index")
+
+		for _, valx := range arrtkm {
+			icurr++
+			indexx := valx.GetInt("index")
+			if index < indexx {
+				icurr--
+				break
+			}
+		}
+
+		if i == 0 || icurr == len(arrtkm) {
+			arrtkm = append(arrtkm, val)
+		} else {
+
+			tarrtkm := make([]toolkit.M, 0, 0)
+			for ix := 0; ix < icurr; ix++ {
+				tarrtkm = append(tarrtkm, arrtkm[ix])
+			}
+
+			tarrtkm = append(tarrtkm, val)
+
+			for ix := icurr; ix < len(arrtkm); ix++ {
+				tarrtkm = append(tarrtkm, arrtkm[ix])
+			}
+
+			arrtkm = make([]toolkit.M, 0, 0)
+			arrtkm = append([]toolkit.M{}, tarrtkm...)
+		}
+
+	}
 
 	return
 }

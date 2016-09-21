@@ -771,6 +771,14 @@ func GetListAccessByLoginId(loginId interface{}, cat AccessCategoryEnum, config 
 		}
 	}
 
+	for key, _ := range artkmchild {
+		tval := artkmchild.Get(key, []toolkit.M{}).([]toolkit.M)
+		tval = sortarrayaccess(tval)
+		artkmchild.Set(key, tval)
+	}
+
+	artkm = sortarrayaccess(artkm)
+
 	for key, val := range artkmchild {
 		for i, xval := range artkm {
 			if key == xval.GetString("_id") {
