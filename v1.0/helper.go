@@ -122,8 +122,8 @@ func insertchild(key string, sub interface{}, parrent []toolkit.M) (ltkm []toolk
 			val.Set("submenu", sub)
 		}
 
-		if !found && val.Has("submenu") {
-			submenu := val["submenu"].([]toolkit.M)
+		submenu := val["submenu"].([]toolkit.M)
+		if !found && len(submenu) > 0 {
 			submenu, found = insertchild(key, sub, submenu)
 		}
 

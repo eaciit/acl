@@ -780,7 +780,8 @@ func GetListAccessByLoginId(loginId interface{}, cat AccessCategoryEnum, config 
 			Set("title", val.Title).
 			Set("icon", val.Icon).
 			Set("url", val.Url).
-			Set("index", val.Index)
+			Set("index", val.Index).
+			Set("submenu", []toolkit.M{})
 
 		if val.ParentId == "" {
 			artkm = append(artkm, tkm)
