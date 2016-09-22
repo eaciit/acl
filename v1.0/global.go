@@ -484,18 +484,18 @@ func Login(username, password string) (sessionid string, err error) {
 	}
 
 	tSession := new(Session)
-	err = FindActiveSessionByUser(tSession, tUser.ID)
-	if err != nil {
-		err = errors.New(fmt.Sprintf("Get previous session, found : %v", err.Error()))
-		return
-	}
+	// err = FindActiveSessionByUser(tSession, tUser.ID)
+	// if err != nil {
+	// 	err = errors.New(fmt.Sprintf("Get previous session, found : %v", err.Error()))
+	// 	return
+	// }
 
-	if tSession.ID == "" {
-		tSession.ID = toolkit.RandomString(32)
-		tSession.UserID = tUser.ID
-		tSession.LoginID = tUser.LoginID
-		tSession.Created = time.Now().UTC()
-	}
+	// if tSession.ID == "" {
+	tSession.ID = toolkit.RandomString(32)
+	tSession.UserID = tUser.ID
+	tSession.LoginID = tUser.LoginID
+	tSession.Created = time.Now().UTC()
+	// }
 
 	tSession.Expired = time.Now().UTC().Add(_expiredduration)
 
