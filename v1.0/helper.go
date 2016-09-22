@@ -112,3 +112,23 @@ func sortarrayaccess(sarrtkm []toolkit.M) (arrtkm []toolkit.M) {
 
 	return
 }
+
+func insertchild(key string, sub interface{}, parrent []toolkit.M) (ltkm []toolkit.M, found bool) {
+	found = false
+	ltkm = make([]toolkit.M, len(parrent), len(parrent))
+	for i, val := range parrent {
+		if key == val.GetString("_id") {
+			found = true
+			val.Set("submenu", sub)
+		}
+
+		if !found && val.Has("submenu") {
+			submenu := val["submenu"].([]toolkit.M)
+			submenu, found = insertchild(key, sub, submenu)
+		}
+
+		ltkm[i] = val
+	}
+
+	return
+}

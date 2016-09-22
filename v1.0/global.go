@@ -714,6 +714,11 @@ func GetListAccessByLoginId(loginId interface{}, cat AccessCategoryEnum, config 
 		config = toolkit.M{}
 	}
 
+	level := int(5)
+	if config.Has("level") {
+		level = config.GetInt("level")
+	}
+
 	artkm = make([]toolkit.M, 0)
 
 	iuser := new(User)
@@ -794,13 +799,24 @@ func GetListAccessByLoginId(loginId interface{}, cat AccessCategoryEnum, config 
 
 	artkm = sortarrayaccess(artkm)
 
-	for key, val := range artkmchild {
-		for i, xval := range artkm {
-			if key == xval.GetString("_id") {
-				xval.Set("submenu", val)
-				artkm[i] = xval
-				break
+	deeper := int(0)
+	for len(artkmchild) > 0 {
+		deeper++
+		arrkey := []string{}
+		for key, val := range artkmchild {
+			found := false
+			artkm, found = insertchild(key, val, artkm)
+			if found {
+				arrkey = append(arrkey, key)
 			}
+		}
+
+		for _, str := range arrkey {
+			artkmchild.Unset(str)
+		}
+
+		if deeper > level {
+			break
 		}
 	}
 
