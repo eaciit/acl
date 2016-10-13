@@ -15,7 +15,9 @@ type Log struct {
 	LoginId       string
 	Action        string
 	Reference     string
+	RequestAddr   string
 	Time          time.Time
+	LoadingTimes  string
 	Description   string
 }
 
