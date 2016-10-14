@@ -22,7 +22,7 @@ type Log struct {
 }
 
 func (l *Log) TableName() string {
-	return "logs"
+	return "acl_logs"
 }
 
 func (l *Log) RecordID() interface{} {
