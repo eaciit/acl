@@ -150,9 +150,7 @@ func HasAccess(ID interface{}, IDType IDTypeEnum, AccessID string, AccessFind Ac
 			}
 
 		}
-
 		tGrants = tUser.Grants
-		//modify here get all groups grant
 	case IDTypeGroup:
 		tGroup := new(Group)
 		err := FindByID(tGroup, ID)
@@ -177,6 +175,17 @@ func HasAccess(ID interface{}, IDType IDTypeEnum, AccessID string, AccessFind Ac
 		err = FindByID(tUser, tSession.UserID)
 		if err != nil {
 			return
+		}
+
+		for _, val := range tUser.Groups {
+			tGroup := new(Group)
+			_ = FindByID(tGroup, val)
+
+			for _, dval := range tGroup.Grants {
+				inenum := Splitinttogrant(dval.AccessValue)
+				tUser.Grant(dval.AccessID, inenum...)
+			}
+
 		}
 
 		tGrants = tUser.Grants
