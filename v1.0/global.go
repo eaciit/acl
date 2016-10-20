@@ -718,6 +718,20 @@ func GetListTabBySessionId(sessionId interface{}, igroup string) (artkm []toolki
 	return
 }
 
+func GetListAccessBySessionId(sessionId interface{}, cat AccessCategoryEnum, config toolkit.M) (artkm []toolkit.M, err error) {
+	artkm = make([]toolkit.M, 0)
+
+	isession := new(Session)
+	err = FindByID(isession, sessionId)
+	if err != nil {
+		err = errors.New(toolkit.Sprintf("Get list access found : %s", err.Error()))
+		return
+	}
+
+	artkm, err = GetListAccessByLoginId(isession.LoginID, cat, config)
+	return
+}
+
 func GetListAccessByLoginId(loginId interface{}, cat AccessCategoryEnum, config toolkit.M) (artkm []toolkit.M, err error) {
 	if config == nil {
 		config = toolkit.M{}
