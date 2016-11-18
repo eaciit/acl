@@ -392,8 +392,8 @@ func ResetPasswordByParam(param, itype string) (userid, tokenid string, err erro
 	if tokenid != "" && err == nil {
 		return
 	}
-
-	err = CreateToken(tUser.ID, "ChangePassword", time.Minute*30)
+	//token expired
+	err = CreateToken(tUser.ID, "ChangePassword", _expiredduration)
 	if err != nil {
 		err = errors.New("Reset password failed to create token")
 	}
