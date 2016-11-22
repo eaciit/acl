@@ -588,6 +588,8 @@ func GetToken(UserID, TokenPurpose string) (tToken *Token, err error) {
 		} else if tToken.ID != "" {
 			err = nil
 			break
+		} else {
+			break
 		}
 	}
 
