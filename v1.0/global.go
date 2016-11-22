@@ -579,14 +579,14 @@ func GetToken(UserID, TokenPurpose string) (tToken *Token, err error) {
 			if time.Now().UTC().After(tToken.Expired) {
 				err = errors.New("Token has been expired")
 				tToken = new(Token)
-				break
 			} else if !tToken.Claimed.IsZero() {
 				err = errors.New("Token has been claimed")
 				tToken = new(Token)
 			} else {
 				break
 			}
-		} else {
+		} else if tToken.ID != "" {
+			err = nil
 			break
 		}
 	}
