@@ -1,17 +1,41 @@
 package acl
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/eaciit/ldap"
 	"github.com/eaciit/toolkit"
-	"strings"
 )
+
+//===============================
+//	address : ldap adress
+//	config
+//  	>> type : [ssl | tls]
+//		>> tlsconfig :
+//===============================
+
+func getldapconn(address string, config toolkit.M) *ldap.Connection {
+	l := ldap.NewConnection(address)
+
+	switch config.GetString("type") {
+	case "ssl":
+		l = ldap.NewSSLConnection(address, config.Get("tlsconfig", nil).(*tls.Config))
+	case "tls":
+		l = ldap.NewSSLConnection(address, config.Get("tlsconfig", nil).(*tls.Config))
+	}
+
+	return l
+}
 
 func checkloginldap(username string, password string, loginconf toolkit.M) (cond bool) {
 	cond = false
 
-	l := ldap.NewConnection(toolkit.ToString(loginconf["address"]))
+	address := loginconf.GetString("address")
+	l := getldapconn(address, loginconf)
+
 	err := l.Connect()
 	if err != nil {
 		return
@@ -29,7 +53,7 @@ func checkloginldap(username string, password string, loginconf toolkit.M) (cond
 func FindDataLdap(addr, basedn, filter string, param toolkit.M) (arrtkm []toolkit.M, err error) {
 	arrtkm = make([]toolkit.M, 0, 0)
 
-	l := ldap.NewConnection(addr)
+	l := getldapconn(addr, param)
 	err = l.Connect()
 	if err != nil {
 		return
